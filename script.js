@@ -5,6 +5,7 @@ const spinButton = document.getElementById('spinButton');
 const resultDisplay = document.getElementById('result');
 
 const symbols = ["🍒", "🍋", "🍇", "🍉", "⭐", "7"];
+const winProbability = 0.2; // Set winning probability to 20%
 
 function getRandomSymbol() {
     return symbols[Math.floor(Math.random() * symbols.length)];
@@ -27,8 +28,12 @@ function spinReelAnimation(reel, duration, speed) {
 }
 
 // This function reveals the final symbol after the animation
-function revealFinalSymbol(reel) {
-    reel.textContent = getRandomSymbol();
+function revealFinalSymbol(reel, forcedSymbol = null) {
+    if (forcedSymbol) {
+        reel.textContent = forcedSymbol;
+    } else {
+        reel.textContent = getRandomSymbol();
+    }
 }
 
 async function spin() {
@@ -40,15 +45,24 @@ async function spin() {
     reel2.textContent = "❓";
     reel3.textContent = "❓";
 
-    // Spin each reel with a delay and randomize the final symbol
+    // Determine whether to force a win based on the set probability
+    const isWin = Math.random() < winProbability;
+    let forcedSymbol = null;
+
+    if (isWin) {
+        // If it's a winning spin, pick a random symbol to force a win
+        forcedSymbol = getRandomSymbol();
+    }
+
+    // Spin each reel with a delay and reveal the final symbol
     await spinReelAnimation(reel1, 2000, 50); // Spin the first reel for 2 seconds, speed: 50ms
-    revealFinalSymbol(reel1);
+    revealFinalSymbol(reel1, isWin ? forcedSymbol : null);
 
     await spinReelAnimation(reel2, 3000, 50); // Spin the second reel for 3 seconds, speed: 50ms
-    revealFinalSymbol(reel2);
+    revealFinalSymbol(reel2, isWin ? forcedSymbol : null);
 
     await spinReelAnimation(reel3, 4000, 50); // Spin the third reel for 4 seconds, speed: 50ms
-    revealFinalSymbol(reel3);
+    revealFinalSymbol(reel3, isWin ? forcedSymbol : null);
 
     checkResult();
     spinButton.disabled = false; // Re-enable the spin button
